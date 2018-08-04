@@ -184,17 +184,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
         break;
       }
-      else if (tilde_tapped_on_mod > 0) {
-        unregister_mods(MOD_BIT(KC_LCTRL));
-        register_mods(MOD_BIT(tilde_tapped_on_mod));
-        register_code(KC_GRV);
-        unregister_code(KC_GRV);
-        unregister_mods(MOD_BIT(tilde_tapped_on_mod));
-      }
-      else if (!ctrl_interrupted && timer_elapsed(timer) < TAPPING_TERM && !tilde_tapped_on_mod) {
-        unregister_mods(MOD_BIT(KC_LCTRL));
-        register_code(KC_ESC);
-        unregister_code(KC_ESC);
+      else if (timer_elapsed(timer) < TAPPING_TERM && !ctrl_interrupted) {
+        if (tilde_tapped_on_mod > 0) {
+          // Re-engages opt/gui if they were held during esc keydown
+          // It would probably be more elegant to delay their keyup event until
+          // here
+          unregister_mods(MOD_BIT(KC_LCTRL));
+          register_mods(MOD_BIT(tilde_tapped_on_mod));
+          register_code(KC_GRV);
+          unregister_code(KC_GRV);
+          unregister_mods(MOD_BIT(tilde_tapped_on_mod));
+        }
+        else {
+          unregister_mods(MOD_BIT(KC_LCTRL));
+          register_code(KC_ESC);
+          unregister_code(KC_ESC);
+        }
       }
       else {
         unregister_mods(MOD_BIT(KC_LCTRL));
