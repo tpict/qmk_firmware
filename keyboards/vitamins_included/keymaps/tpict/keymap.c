@@ -111,6 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
+static bool tilde_mod_engaged = false;
 static bool ctrl_interrupted = false;
 static uint16_t timer = 0;
 
@@ -168,6 +169,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // behaves like KC_SFTENT does i.e. ctrl is sent immediately on
       // downstroke of an "interrupting" key.
       if (record->event.pressed) {
+        if (tilde_mod_engaged) {
+          register_code(KC_GRV);
+          unregister_code(KC_GRV);
+          return false;
+          break;
+        }
+
         ctrl_interrupted = false;
         timer = timer_read ();
         register_mods(MOD_BIT(KC_LCTRL));
@@ -181,6 +189,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         unregister_mods(MOD_BIT(KC_LCTRL));
       }
       return false;
+      break;
+    case KC_LGUI:
+    case KC_LALT:
+      if (record->event.pressed) {
+        tilde_mod_engaged = true;
+      } else {
+        tilde_mod_engaged = false;
+      }
+
+      return true;
       break;
     default:
       ctrl_interrupted = true;
