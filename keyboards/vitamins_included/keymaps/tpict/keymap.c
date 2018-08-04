@@ -111,7 +111,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-static bool tilde_mod_engaged = false;
+// TODO: Handle both opt/cmd here
+// TODO: Check opt/cmd swap
+static uint16_t tilde_mod_engaged = 0;
+static uint16_t tilde_tapped_on_mod = 0;
+
 static bool ctrl_interrupted = false;
 static uint16_t timer = 0;
 
@@ -169,18 +173,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // behaves like KC_SFTENT does i.e. ctrl is sent immediately on
       // downstroke of an "interrupting" key.
       if (record->event.pressed) {
-        if (tilde_mod_engaged) {
-          register_code(KC_GRV);
-          unregister_code(KC_GRV);
-          return false;
-          break;
+        if (tilde_mod_engaged > 0) {
+          tilde_tapped_on_mod = tilde_mod_engaged;
         }
 
         ctrl_interrupted = false;
         timer = timer_read ();
         register_mods(MOD_BIT(KC_LCTRL));
+
+        return false;
+        break;
       }
-      else if (!ctrl_interrupted && timer_elapsed(timer) < TAPPING_TERM) {
+      else if (tilde_tapped_on_mod > 0) {
+        unregister_mods(MOD_BIT(KC_LCTRL));
+        register_mods(MOD_BIT(tilde_tapped_on_mod));
+        register_code(KC_GRV);
+        unregister_code(KC_GRV);
+        unregister_mods(MOD_BIT(tilde_tapped_on_mod));
+      }
+      else if (!ctrl_interrupted && timer_elapsed(timer) < TAPPING_TERM && !tilde_tapped_on_mod) {
         unregister_mods(MOD_BIT(KC_LCTRL));
         register_code(KC_ESC);
         unregister_code(KC_ESC);
@@ -188,14 +199,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       else {
         unregister_mods(MOD_BIT(KC_LCTRL));
       }
+      tilde_tapped_on_mod = false;
       return false;
       break;
     case KC_LGUI:
+      if (record->event.pressed) {
+        tilde_mod_engaged = KC_LALT;
+      } else {
+        tilde_mod_engaged = 0;
+      }
+
+      return true;
+      break;
     case KC_LALT:
       if (record->event.pressed) {
-        tilde_mod_engaged = true;
+        tilde_mod_engaged = KC_LGUI;
       } else {
-        tilde_mod_engaged = false;
+        tilde_mod_engaged = 0;
       }
 
       return true;
