@@ -113,8 +113,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // TODO: Handle both opt/cmd here
 // TODO: Check opt/cmd swap
-static uint16_t tilde_mod_engaged = 0;
-static uint16_t tilde_tapped_on_mod = 0;
+static bool tilde_mod_engaged = false;
+static bool tilde_tapped_on_mod = false;
 
 static bool ctrl_interrupted = false;
 static uint16_t timer = 0;
@@ -173,9 +173,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // behaves like KC_SFTENT does i.e. ctrl is sent immediately on
       // downstroke of an "interrupting" key.
       if (record->event.pressed) {
-        if (tilde_mod_engaged > 0) {
-          tilde_tapped_on_mod = tilde_mod_engaged;
-        }
+        tilde_tapped_on_mod = tilde_mod_engaged && !(keyboard_report->mods & MOD_BIT(KC_LALT));
 
         ctrl_interrupted = false;
         timer = timer_read ();
@@ -185,15 +183,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
       }
       else if (timer_elapsed(timer) < TAPPING_TERM && !ctrl_interrupted) {
-        if (tilde_tapped_on_mod > 0) {
-          // Re-engages opt/gui if they were held during esc keydown
-          // It would probably be more elegant to delay their keyup event until
-          // here
+        if (tilde_tapped_on_mod) {
           unregister_mods(MOD_BIT(KC_LCTRL));
-          register_mods(MOD_BIT(tilde_tapped_on_mod));
           register_code(KC_GRV);
           unregister_code(KC_GRV);
-          unregister_mods(MOD_BIT(tilde_tapped_on_mod));
+
+          if (!tilde_mod_engaged) {
+            unregister_mods(MOD_BIT(KC_LGUI));
+          }
         }
         else {
           unregister_mods(MOD_BIT(KC_LCTRL));
@@ -207,24 +204,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       tilde_tapped_on_mod = false;
       return false;
       break;
-    case KC_LGUI:
-      if (record->event.pressed) {
-        tilde_mod_engaged = KC_LALT;
-      } else {
-        tilde_mod_engaged = 0;
-      }
-
-      return true;
-      break;
     case KC_LALT:
       if (record->event.pressed) {
-        tilde_mod_engaged = KC_LGUI;
+        tilde_mod_engaged = true;
+        return true;
+      } else if (tilde_tapped_on_mod) {
+        tilde_mod_engaged = false;
+        return false;
       } else {
-        tilde_mod_engaged = 0;
+        tilde_mod_engaged = false;
+        return true;
       }
-
-      return true;
-      break;
     default:
       ctrl_interrupted = true;
       break;
