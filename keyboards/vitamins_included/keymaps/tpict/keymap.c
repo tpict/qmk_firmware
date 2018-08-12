@@ -12,7 +12,6 @@ extern keymap_config_t keymap_config;
 #define _LOWER 1
 #define _RAISE 2
 #define _ADJUST 3
-#define _FUNC 4
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
@@ -20,7 +19,8 @@ enum custom_keycodes {
   RAISE,
   ADJUST,
   FUNC,
-  KC_CESC
+  KC_CESC,
+  KC_LWSP
 };
 
 // Fillers to make layering more clear
@@ -41,10 +41,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_QWERTY] = LAYOUT_ortho_4x12( \
-  KC_TAB,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC, \
+  KC_TAB,   KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV, \
   KC_CESC,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
   KC_LSFT,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_SFTENT, \
-  KC_LCTRL ,FUNC,    _______, KC_LGUI, KC_LALT, LOWER,   KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT \
+  KC_LCTRL ,RAISE,   _______, KC_LGUI, KC_LALT, KC_SPC,  KC_LWSP, KC_BSPC, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT \
 ),
 
 /* Lower
@@ -59,29 +59,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_LOWER] = LAYOUT_ortho_4x12( \
-  KC_TILD, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, _______, \
-  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PIPE, \
-  _______, _______, _______, _______, _______, _______, _______, S(KC_NUHS),S(KC_NUBS),_______, _______, _______, \
+  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______, \
+  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS, \
+  _______, KC_RCBR, KC_LCBR, KC_PLUS, KC_UNDS, _______, KC_PIPE, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______, \
   _______, _______, _______, _______, _______, _______, _______, _______, KC_HOME, KC_PGDN, KC_PGUP, KC_END \
 ),
 
-/* Raise
- * ,-----------------------------------------------------------------------------------.
- * |   `  |      |      |      |      |      |      |   -  |   =  |   [  |   ]  |      |
- * |------+------+------+------+------+------|------+------+------+------+------+------|
- * |      |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |  \   |
- * |------+------+------+------+------+-------------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |ISO # |ISO / |      |      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |             |      | Next | Vol- | Vol+ | Play |
- * `-----------------------------------------------------------------------------------'
- */
-[_RAISE] = LAYOUT_ortho_4x12( \
-  KC_GRV, _______, _______, _______, _______, _______, _______, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______, \
-  _______,KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSLS, \
-  _______,_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
-  _______,_______, _______, _______, _______, KC_SPC,  _______, _______, _______, _______, _______, _______ \
-),
 
 /* Adjust (Lower + Raise)
  * ,-----------------------------------------------------------------------------------.
@@ -101,8 +84,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ \
 ),
 
-[_FUNC] = LAYOUT_ortho_4x12( \
-  RESET,   KC_F11,  KC_F12,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,
+[_RAISE] = LAYOUT_ortho_4x12( \
+  RESET,   KC_F11,  KC_F12,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_DEL,
   _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  _______, \
   _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______, _______, \
   _______, _______, _______, _______, _______, _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY \
@@ -110,6 +93,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 };
+
+static bool lower_mod_engaged = false;
 
 // TODO: Handle both opt/cmd here
 // TODO: Check opt/cmd swap
@@ -160,14 +145,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-    case FUNC:
-      if (record->event.pressed) {
-        layer_on(_FUNC);
-      } else {
-        layer_off(_FUNC);
-      }
-      return false;
-      break;
     case KC_CESC:
       // At the moment, mod-tap keys don't offer a configuration option that
       // behaves like KC_SFTENT does i.e. ctrl is sent immediately on
@@ -215,6 +192,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         tilde_mod_engaged = false;
         return true;
       }
+    case KC_LWSP:
+      lower_mod_engaged = (keyboard_report->mods & MOD_BIT(KC_LALT)) || (keyboard_report->mods & MOD_BIT(KC_LGUI));
+
+      if (record->event.pressed) {
+        if (lower_mod_engaged) {
+          register_code(KC_SPC);
+        } else {
+          layer_on(_LOWER);
+        }
+      } else {
+        if (lower_mod_engaged) {
+          unregister_code(KC_SPC);
+        } else {
+          layer_off(_LOWER);
+        }
+      }
+
+      return false;
     default:
       ctrl_interrupted = true;
       break;
